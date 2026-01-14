@@ -12,19 +12,19 @@ import (
 type User struct {
 	ID        uint           `json:"id" gorm:"primaryKey"`
 	Username  string         `json:"username" gorm:"unique;not null;size:50"`
-	Password  string         `json:"-" gorm:"not null"` // json:"-" 表示不在 JSON 中显示
+	Password  string         `json:"-" gorm:"not null"` // json:"-" indicates not displayed in JSON
 	Email     string         `json:"email" gorm:"unique;size:100"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 }
 
-// Migrate 自动迁移表结构
+// Migrate automatically migrates table structure
 func Migrate() {
 	database.DB.AutoMigrate(&User{})
 }
 
-// HashPassword 加密密码
+// HashPassword encrypts the password
 func (u *User) HashPassword() error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -34,18 +34,18 @@ func (u *User) HashPassword() error {
 	return nil
 }
 
-// CheckPassword 验证密码
+// CheckPassword verifies the password
 func (u *User) CheckPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil
 }
 
-// Create 创建用户
+// Create creates a user
 func (u *User) Create() error {
 	return database.DB.Create(u).Error
 }
 
-// FindByUsername 根据用户名查找用户
+// FindByUsername finds a user by username
 func FindByUsername(username string) (*User, error) {
 	var user User
 	err := database.DB.Where("username = ?", username).First(&user).Error

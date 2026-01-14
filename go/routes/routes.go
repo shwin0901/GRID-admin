@@ -8,17 +8,17 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine) {
-	// API 路由组
+	// API route group
 	api := r.Group("/api")
 	{
-		// 公开路由 - 不需要认证
+		// Public routes - no authentication required
 		auth := api.Group("/auth")
 		{
 			auth.POST("/register", handlers.Register)
 			auth.POST("/login", handlers.Login)
 		}
 
-		// 受保护路由 - 需要 JWT 认证
+		// Protected routes - require JWT authentication
 		user := api.Group("/user")
 		user.Use(middleware.JWTAuth())
 		{

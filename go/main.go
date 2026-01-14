@@ -12,22 +12,22 @@ import (
 )
 
 func main() {
-	// 初始化配置
+	// Initialize configuration
 	config.Init()
 
-	// 连接数据库
+	// Connect to the database
 	database.Init()
 
-	// 自动迁移表结构
+	// Automatically migrate table structures
 	models.Migrate()
 
-	// 创建 Gin 引擎
+	// Create a Gin engine
 	r := gin.Default()
 
-	// 设置路由
+	// Set up routes
 	routes.SetupRoutes(r)
 
-	// 启动服务
+	// Start the server
 	log.Printf("Server starting on port %s...", config.AppConfig.ServerPort)
 	if err := r.Run(":" + config.AppConfig.ServerPort); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

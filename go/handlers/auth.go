@@ -8,87 +8,87 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// RegisterRequest 注册请求
+// RegisterRequest represents a registration request
 type RegisterRequest struct {
 	Username string `json:"username" binding:"required,min=3,max=50"`
 	Password string `json:"password" binding:"required,min=6"`
 	Email    string `json:"email" binding:"omitempty,email"`
 }
 
-// LoginRequest 登录请求
+// LoginRequest represents a login request
 type LoginRequest struct {
 	Username string `json:"username" binding:"required"`
 	Password string `json:"password" binding:"required"`
 }
 
-// LoginResponse 登录响应
+// LoginResponse represents a login response
 type LoginResponse struct {
 	Token    string       `json:"token"`
 	UserInfo *models.User `json:"user_info"`
 }
 
-// Register 用户注册
+// Register handles user registration
 func Register(c *gin.Context) {
 	var req RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "参数错误: "+err.Error())
+		utils.BadRequest(c, "Invalid parameters: "+err.Error())
 		return
 	}
 
-	// 检查用户名是否已存在
+	// Check if the username already exists
 	existingUser, _ := models.FindByUsername(req.Username)
 	if existingUser != nil {
-		utils.BadRequest(c, "用户名已存在")
+		utils.BadRequest(c, "Username already exists")
 		return
 	}
 
-	// 创建用户
+	// Create a user
 	user := &models.User{
 		Username: req.Username,
 		Password: req.Password,
 		Email:    req.Email,
 	}
 
-	// 加密密码
+	// Encrypt the password
 	if err := user.HashPassword(); err != nil {
-		utils.InternalError(c, "密码加密失败")
+		utils.InternalError(c, "Failed to encrypt password")
 		return
 	}
 
-	// 保存到数据库
+	// Save to the database
 	if err := user.Create(); err != nil {
-		utils.InternalError(c, "创建用户失败")
+		utils.InternalError(c, "Failed to create user")
 		return
 	}
 
-	utils.SuccessWithMessage(c, "注册成功", user)
+	utils.SuccessWithMessage(c, "Registration successful", user)
 }
 
-// Login 用户登录
+// Login handles user login
 func Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.BadRequest(c, "参数错误: "+err.Error())
+		utils.BadRequest(c, "Invalid parameters: "+err.Error())
 		return
 	}
 
-	// 查找用户
+	// Find the user
 	user, err := models.FindByUsername(req.Username)
 	if err != nil {
-		utils.Unauthorized(c, "用户名或密码错误")
+		utils.Unauthorized(c, "Invalid username or password")
 		return
 	}
 
-	// 验证密码
+	// Verify the password
 	if !user.CheckPassword(req.Password) {
-		utils.Unauthorized(c, "用户名或密码错误")
+		utils.Unauthorized(c, "Invalid username or password")
 		return
 	}
 
-	// 生成 Token
+	// Generate a token
 	token, err := middleware.GenerateToken(user.ID, user.Username)
 	if err != nil {
-		utils.InternalError(c, "生成 Token 失败")
+		utils.InternalError(c, "Failed to generate token")
 		return
 	}
 
@@ -98,19 +98,19 @@ func Login(c *gin.Context) {
 	})
 }
 
-// GetProfile 获取用户信息
+// GetProfile retrieves user information
 func GetProfile(c *gin.Context) {
-	// 从上下文获取用户 ID
+	// Get the user ID from the context
 	userID, exists := c.Get("userID")
 	if !exists {
-		utils.Unauthorized(c, "请先登录")
+		utils.Unauthorized(c, "Please log in first")
 		return
 	}
 
-	// 查找用户
+	// Find the user
 	user, err := models.FindByID(userID.(uint))
 	if err != nil {
-		utils.NotFound(c, "用户不存在")
+		utils.NotFound(c, "User not found")
 		return
 	}
 
