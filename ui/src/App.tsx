@@ -1,9 +1,9 @@
-import Login from '@/pages/login'
+import { useRoutes } from 'react-router-dom'
+import { routes } from '@/router'
 
 export function App() {
-  return (
-    <Login />
-  )
+  const element = useRoutes(routes)
+  return element
 }
 
 export default App
