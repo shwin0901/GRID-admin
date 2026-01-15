@@ -19,7 +19,10 @@ func main() {
 	database.Init()
 
 	// Automatically migrate table structures
-	models.Migrate()
+	if err := models.Migrate(); err != nil {
+		log.Fatalf("Failed to migrate database: %v", err)
+	}
+	log.Println("Database migration completed successfully")
 
 	// Create a Gin engine
 	r := gin.Default()

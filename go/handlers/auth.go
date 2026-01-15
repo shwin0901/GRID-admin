@@ -75,13 +75,13 @@ func Login(c *gin.Context) {
 	// Find the user
 	user, err := models.FindByUsername(req.Username)
 	if err != nil {
-		utils.Unauthorized(c, "Invalid username or password")
+		utils.BadRequest(c, "Invalid username or password")
 		return
 	}
 
 	// Verify the password
 	if !user.CheckPassword(req.Password) {
-		utils.Unauthorized(c, "Invalid username or password")
+		utils.BadRequest(c, "Invalid username or password")
 		return
 	}
 

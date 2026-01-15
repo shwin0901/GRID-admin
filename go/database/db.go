@@ -13,6 +13,13 @@ import (
 var DB *gorm.DB
 
 func Init() {
+	log.Printf("Connecting to database: host=%s port=%s user=%s dbname=%s",
+		config.AppConfig.DBHost,
+		config.AppConfig.DBPort,
+		config.AppConfig.DBUser,
+		config.AppConfig.DBName,
+	)
+
 	dsn := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		config.AppConfig.DBHost,

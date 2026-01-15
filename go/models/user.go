@@ -20,8 +20,8 @@ type User struct {
 }
 
 // Migrate automatically migrates table structure
-func Migrate() {
-	database.DB.AutoMigrate(&User{})
+func Migrate() error {
+	return database.DB.AutoMigrate(&User{})
 }
 
 // HashPassword encrypts the password
