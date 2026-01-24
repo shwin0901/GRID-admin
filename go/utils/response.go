@@ -43,6 +43,10 @@ func Unauthorized(c *gin.Context, message string) {
 	Error(c, http.StatusUnauthorized, 401, message)
 }
 
+func Forbidden(c *gin.Context, message string) {
+	Error(c, http.StatusForbidden, 403, message)
+}
+
 func NotFound(c *gin.Context, message string) {
 	Error(c, http.StatusNotFound, 404, message)
 }

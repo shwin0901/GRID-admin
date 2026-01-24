@@ -13,16 +13,18 @@ import (
 
 // Claims represents JWT claims
 type Claims struct {
-	UserID   uint   `json:"user_id"`
-	Username string `json:"username"`
+	UserID   uint     `json:"user_id"`
+	Username string   `json:"username"`
+	Roles    []string `json:"roles"`
 	jwt.RegisteredClaims
 }
 
 // GenerateToken generates a JWT token
-func GenerateToken(userID uint, username string) (string, error) {
+func GenerateToken(userID uint, username string, roles []string) (string, error) {
 	claims := Claims{
 		UserID:   userID,
 		Username: username,
+		Roles:    roles,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)), // Expires in 24 hours
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -81,6 +83,7 @@ func JWTAuth() gin.HandlerFunc {
 		// Store user information in the context
 		c.Set("userID", claims.UserID)
 		c.Set("username", claims.Username)
+		c.Set("roles", claims.Roles)
 		c.Next()
 	}
 }

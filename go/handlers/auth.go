@@ -42,11 +42,25 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Create a user
+	// Find internal role
+	role, err := models.FindRoleByName(models.RoleNameInternal)
+	if err != nil {
+		utils.InternalError(c, "Failed to find role")
+		return
+	}
+
+	// Handle empty email (store as NULL instead of empty string)
+	var email *string
+	if req.Email != "" {
+		email = &req.Email
+	}
+
+	// Create a user with initial role
 	user := &models.User{
 		Username: req.Username,
 		Password: req.Password,
-		Email:    req.Email,
+		Email:    email,
+		Roles:    []models.Role{*role},
 	}
 
 	// Encrypt the password
@@ -85,8 +99,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Generate a token
-	token, err := middleware.GenerateToken(user.ID, user.Username)
+	// Generate a token with all user roles
+	token, err := middleware.GenerateToken(user.ID, user.Username, user.GetRoleNames())
 	if err != nil {
 		utils.InternalError(c, "Failed to generate token")
 		return
